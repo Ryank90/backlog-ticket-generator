@@ -1,7 +1,7 @@
 
 
 function getTemplateArea() {
-    return "";
+    return "A1:F10";
 }
 
 /**
@@ -177,14 +177,52 @@ function getItemLastRow() {
  * Runs when the sheet is loaded.
  */
 function onOpen() {
-  var ui = SpreadsheetApp.getUi();
+    var ui = SpreadsheetApp.getUi();
 
-  ui.createMenu('Card Generator')
-  .addItem('Generate Cards', 'genItemsFromBacklog')
-  .addItem('Generate Specific Cards', 'genSpecificItemsFromBacklog')
-  .addToUi();
+    // Include the Card options menu to the Google Sheet.
+    ui.createMenu('Card Generator')
+        .addItem('Generate Cards', 'genItemsFromBacklog')
+        .addItem('Generate Specific Cards', 'genSpecificItemsFromBacklog')
+        .addToUi();
+
+    // Include the JIRA options menu to the Google Sheet.
+    ui.createMenu('JIRA Options')
+        .addItem('Push All Items to JIRA', '')
+        .addItem('Push Specific Items to JIRA', '')
+        .addToUi();
 }
 
-function genItemsFromBacklog() {}
+/**
+ *
+ */
+function genItemsFromBacklog() {
+  if (!validateTabExists('Items', 1)) {
+    return;
+  }
 
-function genSpecificItemsFromBacklog() {}
+  Browser.msgBox("We look good to process");
+}
+
+/**
+ *
+ */
+function genSpecificItemsFromBacklog() {
+  if (!validateTabExists('Items', 1)) {
+    return;
+  }
+
+  Browser.msgBox("We look good to process");
+}
+
+/**
+ * Validating if a specific tab exists in the Google Spreadsheet.
+ */
+function validateTabExists(name, position) {
+  if (getSheetTabByName(name) == null) {
+    getSheetInstance().insertSheet(name, position);
+    Browser.msgBox('The (' + name + ') sheet was missing and now has been included below. Please try again.');
+    return false;
+  }
+
+  return true;
+}
