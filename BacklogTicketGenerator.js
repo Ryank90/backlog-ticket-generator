@@ -1,4 +1,32 @@
+/**
+ * -----------------------------------------------------------------------------
+ * Backlog Ticket Generator Script.
+ *
+ * The following script is included into the Template: Product Backlog Google
+ * spreadsheet to provide new menu items. These menu items allow for the
+ * printing of physical cards to create a board of items and pushing of items
+ * into JIRA for high-level epic management.
+ * -----------------------------------------------------------------------------
+ */
 
+/**
+ * Runs when the sheet is loaded.
+ */
+function onOpen() {
+    var ui = SpreadsheetApp.getUi();
+
+    // Include the Card options menu to the Google Sheet.
+    ui.createMenu('Card Generator')
+        .addItem('Generate Items', 'genItemsFromBacklog')
+        .addItem('Generate Specific Items', 'genSpecificItemsFromBacklog')
+        .addToUi();
+
+    // Include the JIRA options menu to the Google Sheet.
+    ui.createMenu('JIRA Options')
+        .addItem('Generate Items in JIRA', 'genItemsInJira')
+        .addItem('Generate Specific Items in JIRA', 'genSpecificItemsInJira')
+        .addToUi();
+}
 
 function getTemplateArea() {
     return "A1:F10";
@@ -173,27 +201,9 @@ function getItemLastRow() {
 }
 
 
-/**
- * Runs when the sheet is loaded.
- */
-function onOpen() {
-    var ui = SpreadsheetApp.getUi();
-
-    // Include the Card options menu to the Google Sheet.
-    ui.createMenu('Card Generator')
-        .addItem('Generate Cards', 'genItemsFromBacklog')
-        .addItem('Generate Specific Cards', 'genSpecificItemsFromBacklog')
-        .addToUi();
-
-    // Include the JIRA options menu to the Google Sheet.
-    ui.createMenu('JIRA Options')
-        .addItem('Push All Items to JIRA', '')
-        .addItem('Push Specific Items to JIRA', '')
-        .addToUi();
-}
 
 /**
- *
+ * Generate items from the backlog within the document.
  */
 function genItemsFromBacklog() {
   if (!validateTabExists('Items', 1)) {
@@ -204,7 +214,7 @@ function genItemsFromBacklog() {
 }
 
 /**
- *
+ * Generate specific items from the backlog within the document.
  */
 function genSpecificItemsFromBacklog() {
   if (!validateTabExists('Items', 1)) {
@@ -212,6 +222,20 @@ function genSpecificItemsFromBacklog() {
   }
 
   Browser.msgBox("We look good to process");
+}
+
+/**
+ * Generate items from the backlog in JIRA.
+ */
+function genItemsInJira() {
+
+}
+
+/**
+ * Generate specific items from the backlog in JIRA.
+ */
+function genSpecificItemsInJira() {
+
 }
 
 /**
@@ -225,4 +249,11 @@ function validateTabExists(name, position) {
   }
 
   return true;
+}
+
+/**
+ *
+ */
+function generateCards(items) {
+
 }
