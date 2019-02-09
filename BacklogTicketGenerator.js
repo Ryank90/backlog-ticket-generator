@@ -15,44 +15,43 @@
 function onOpen() {
     var ui = SpreadsheetApp.getUi();
 
-    // Include the Card options menu to the Google Sheet.
     ui.createMenu('Card Generator')
         .addItem('Generate Items', 'genItemsFromBacklog')
         .addItem('Generate Specific Items', 'genSpecificItemsFromBacklog')
         .addToUi();
-
-    // Include the JIRA options menu to the Google Sheet.
-    ui.createMenu('JIRA Options')
-        .addItem('Generate Items in JIRA', 'genItemsInJira')
-        .addItem('Generate Specific Items in JIRA', 'genSpecificItemsInJira')
-        .addToUi();
 }
 
+/**
+ *
+ */
 function getTemplateArea() {
     return "A1:F10";
 }
 
 /**
- * ==================================================
- * SHEET METHODS
- * ==================================================
+ *
  */
-
 function getSheetInstance() {
     return SpreadsheetApp.getActiveSpreadsheet();
 }
 
+/**
+ *
+ */
 function getSheetTabByName(name) {
     return getSheetInstance().getSheetByName(name)
 }
 
+/**
+ *
+ */
 function getPreparedItemSheet(template, itemCount, rowCount) {
     var neededRows = itemCount * rowCount;
-    var sheet = getSheetTabByName("Tickets");
+    var sheet = getSheetTabByName("Items");
 
     sheet.clear();
 
-    setColWidthTo(sheet, "Template", template);
+    setColWidthTo(sheet, "_Template", template);
 
     var rows = sheet.getMaxRows();
 
@@ -60,17 +59,14 @@ function getPreparedItemSheet(template, itemCount, rowCount) {
         sheet.insertRows(1, (neededRows - rows));
     }
 
-    setRowHeightTo(sheet, "Template", rowCount, itemCount);
+    setRowHeightTo(sheet, "_Template", rowCount, itemCount);
 
     return sheet;
 }
 
 /**
- * ==================================================
- * HELPER METHODS
- * ==================================================
+ *
  */
-
 function setColWidthTo(sheet, name, range) {
     var template = getSheetTabByName(name);
     var max = range.getLastColumn() + 1;
@@ -93,24 +89,30 @@ function setRowHeightTo(sheet, name, rowCount, itemCount) {
 }
 
 /**
- * ==================================================
- * RANGE METHODS
- * ==================================================
+ *
  */
-
 function getTemplateRange(name) {
     return getSheetTabByName(name).getRange(getTemplateArea());
 }
 
+/**
+ *
+ */
 function getHeaderRange(items) {
     return items.getRange(1, 1, 1, items.getLastColumn());
 }
 
+/**
+ *
+ */
 function getItemsRange(items) {
     var rowCount = items.getLastRow() - 1;
     return items.getRange(2, 1, rowCount, items.getLastColumn());
 }
 
+/**
+ *
+ */
 function getSelectedItemRange(items) {
     var range = getSheetInstance().getActiveRange();
     var rowStart = range.getRowIndex();
@@ -125,82 +127,157 @@ function getSelectedItemRange(items) {
 }
 
 /**
- * ==================================================
- * TEMPLATE METHODS
- * ==================================================
+ * Template: Set "Name" of the item.
  */
+function setItemName(backlogItem, item) {
+    var maxLength = 30;
+    var name = backlogItem['Name (Epic)'];
+
+    if (name && name.length > maxLength) {
+        name = name.substring(0, maxLength) + '...';
+    }
+
+    item.getCell(3, 3).setValue(name);
+}
 
 /**
  * Template: Set "ID" of the item.
  */
-function setItemId(backlog, item) {
-
+function setItemId(backlogItem, item) {
+    item.getCell(2, 3).setValue(backlogItem['ID']);
 }
 
 /**
- * Template: Set "Name" of the item.
+ * Template: Set "Theme" of the item.
  */
-function setItemName(backlog, item) {
+function setItemTheme(backlogItem, item) {
+    var maxLength = 12;
+    var theme = backlogItem['Theme'];
 
+    if (theme && theme.length > maxLength) {
+        theme = theme.substring(0, maxLength) + '...';
+    }
+
+    item.getCell(2, 5).setValue(theme);
 }
 
 /**
  * Template: Set "Story" of the item.
  */
-function setItemStory(backlog, item) {
-
+function setItemStory(backlogItem, item) {
+    item.getCell(5, 3).setValue(backlogItem['User Story']);
 }
 
 /**
  * Template: Set "How To Demo" of the item.
  */
-function setItemHowToDemo(backlog, item) {
-
+function setItemHowToDemo(backlogItem, item) {
+    item.getCell(8, 3).setValue(backlogItem['How to Demo']);
 }
 
 /**
  * Template: Set "Priority" of the item.
  */
-function setItemPriority(backlog, item) {
-
+function setItemPriority(backlogItem, item) {
+    if (backlogItem['Priority'] == '' || backlogItem['Priority'] == 'undefined') {
+         backlogItem['Priority'] = '';
+    }
+    item.getCell(5, 5).setValue(backlogItem['Priority']);
 }
 
 /**
  * Template: Set "Estimate" of the item.
  */
-function setItemEstimate(backlog, item) {
-
+function setItemEstimate(backlogItem, item) {
+    if (backlogItem['Estimate'] == '' || backlogItem['Estimate'] == 'undefined') {
+         backlogItem['Estimate'] = '';
+    }
+    item.getCell(8, 5).setValue(backlogItem['Estimate']);
 }
 
 /**
  *
  */
 function getItemStartCol() {
-
+    return getTemplateArea().substring(0, 1);
 }
 
 /**
  *
  */
 function getItemStartRow() {
-
+    return parseInt(getTemplateArea().substring(1, 2), 10);
 }
 
 /**
  *
  */
 function getItemLastCol() {
-
+    return getTemplateArea().substring(3, 4);
 }
 
 /**
  *
  */
 function getItemLastRow() {
-
+    return parseInt(getTemplateArea().substring(4), 10);
 }
 
+/**
+ *
+ */
+function getProductBacklogItems(selectedItems) {
+    var productBacklog = getSheetTabByName("Product Backlog");
+    var rangeRows = (selectedItems ? getSelectedItemRange(productBacklog) : getItemsRange(productBacklog));
+    var rows = rangeRows.getValues();
+    var headers = getHeaderRange(productBacklog).getValues()[0];
 
+    var productBacklogItems = [];
+    for (var i = 0; i < rows.length; i++) {
+        var productBacklogItem = {};
+        for (var j = 0; j < rows[i].length; j++) {
+            productBacklogItem[headers[j]] = rows[i][j];
+        }
+        productBacklogItems.push(productBacklogItem);
+    }
+
+    return productBacklogItems;
+}
+
+/**
+ *
+ */
+function generateCards(items) {
+    var rowsCount = getItemLastRow();
+    var template = getTemplateRange("_Template");
+    var tab = getPreparedItemSheet(template, items.length, rowsCount);
+
+    var rowStart = getItemStartRow();
+    var rowLast = getItemLastRow();
+
+    var colStart = getItemStartCol();
+    var colLast = getItemLastCol();
+
+    for (var i = 0; i < items.length; i++) {
+        var rangeVal = colStart + rowStart + ':' + colLast + rowLast;
+        var card = tab.getRange(rangeVal);
+
+        template.copyTo(card);
+
+        setItemId(items[i], card);
+        setItemTheme(items[i], card);
+        setItemName(items[i], card);
+        setItemStory(items[i], card);
+        setItemHowToDemo(items[i], card);
+        setItemEstimate(items[i], card);
+        setItemPriority(items[i], card);
+
+        rowStart += rowsCount;
+        rowLast += rowsCount;
+    }
+
+    Browser.msgBox("Completed!");
+}
 
 /**
  * Generate items from the backlog within the document.
@@ -210,7 +287,9 @@ function genItemsFromBacklog() {
     return;
   }
 
-  Browser.msgBox("We look good to process");
+  var items = getProductBacklogItems(false);
+  generateCards(items);
+
 }
 
 /**
@@ -221,21 +300,13 @@ function genSpecificItemsFromBacklog() {
     return;
   }
 
-  Browser.msgBox("We look good to process");
-}
+  if (getSheetTabByName("Product Backlog").getName() != SpreadsheetApp.getActiveSheet().getName()) {
+      Browser.msgBox('The Backlog sheet need to be active when creating cards from selected rows. Please try again.');
+      return;
+  }
 
-/**
- * Generate items from the backlog in JIRA.
- */
-function genItemsInJira() {
-
-}
-
-/**
- * Generate specific items from the backlog in JIRA.
- */
-function genSpecificItemsInJira() {
-
+  var items = getProductBacklogItems(true);
+  generateCards(items);
 }
 
 /**
@@ -249,11 +320,4 @@ function validateTabExists(name, position) {
   }
 
   return true;
-}
-
-/**
- *
- */
-function generateCards(items) {
-
 }
