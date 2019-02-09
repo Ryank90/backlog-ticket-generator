@@ -22,21 +22,21 @@ function onOpen() {
 }
 
 /**
- *
+ * Get the area in which the template is set.
  */
 function getTemplateArea() {
     return "A1:F10";
 }
 
 /**
- *
+ * Get an instance of the Google sheet.
  */
 function getSheetInstance() {
     return SpreadsheetApp.getActiveSpreadsheet();
 }
 
 /**
- *
+ * Get a tab/sheet within the Google sheet.
  */
 function getSheetTabByName(name) {
     return getSheetInstance().getSheetByName(name)
@@ -65,7 +65,7 @@ function getPreparedItemSheet(template, itemCount, rowCount) {
 }
 
 /**
- *
+ * Set the sheets column width.
  */
 function setColWidthTo(sheet, name, range) {
     var template = getSheetTabByName(name);
@@ -76,6 +76,9 @@ function setColWidthTo(sheet, name, range) {
     }
 }
 
+/**
+ * Set the sheets row height.
+ */
 function setRowHeightTo(sheet, name, rowCount, itemCount) {
     var template = getSheetTabByName(name);
     for (var i = 0; i < rowCount; i++) {
@@ -89,21 +92,21 @@ function setRowHeightTo(sheet, name, rowCount, itemCount) {
 }
 
 /**
- *
+ * Get the range of a specific sheet.
  */
 function getTemplateRange(name) {
     return getSheetTabByName(name).getRange(getTemplateArea());
 }
 
 /**
- *
+ * Get the range of the header.
  */
 function getHeaderRange(items) {
     return items.getRange(1, 1, 1, items.getLastColumn());
 }
 
 /**
- *
+ * Get the range of the items.
  */
 function getItemsRange(items) {
     var rowCount = items.getLastRow() - 1;
@@ -111,7 +114,7 @@ function getItemsRange(items) {
 }
 
 /**
- *
+ * Get the range of the selected items within the Google sheet.
  */
 function getSelectedItemRange(items) {
     var range = getSheetInstance().getActiveRange();
@@ -196,35 +199,35 @@ function setItemEstimate(backlogItem, item) {
 }
 
 /**
- *
+ * Get the start column of an item.
  */
 function getItemStartCol() {
     return getTemplateArea().substring(0, 1);
 }
 
 /**
- *
+ * Get the start row of an item.
  */
 function getItemStartRow() {
     return parseInt(getTemplateArea().substring(1, 2), 10);
 }
 
 /**
- *
+ * Get the last column of an item.
  */
 function getItemLastCol() {
     return getTemplateArea().substring(3, 4);
 }
 
 /**
- *
+ * Get the last row of an item.
  */
 function getItemLastRow() {
     return parseInt(getTemplateArea().substring(4), 10);
 }
 
 /**
- *
+ * Get the product backlog items in the correct format.
  */
 function getProductBacklogItems(selectedItems) {
     var productBacklog = getSheetTabByName("Product Backlog");
@@ -245,7 +248,7 @@ function getProductBacklogItems(selectedItems) {
 }
 
 /**
- *
+ * Generate cards that can be printed from the backlog.
  */
 function generateCards(items) {
     var rowsCount = getItemLastRow();
