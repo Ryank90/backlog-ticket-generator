@@ -134,7 +134,7 @@ function getSelectedItemRange(items) {
  */
 function setItemName(backlogItem, item) {
     var maxLength = 30;
-    var name = backlogItem['Name (Epic)'];
+    var name = backlogItem['Title'];
 
     if (name && name.length > maxLength) {
         name = name.substring(0, maxLength) + '...';
