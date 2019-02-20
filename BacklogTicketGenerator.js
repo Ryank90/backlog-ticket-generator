@@ -151,24 +151,24 @@ function setItemId(backlogItem, item) {
 }
 
 /**
- * Template: Set "Theme" of the item.
- */
-function setItemTheme(backlogItem, item) {
-    var maxLength = 12;
-    var theme = backlogItem['Theme'];
-
-    if (theme && theme.length > maxLength) {
-        theme = theme.substring(0, maxLength) + '...';
-    }
-
-    item.getCell(2, 5).setValue(theme);
-}
-
-/**
  * Template: Set "Story" of the item.
  */
 function setItemStory(backlogItem, item) {
     item.getCell(5, 3).setValue(backlogItem['User Story']);
+}
+
+/**
+ * Template: Set "Requested By" of the Item.
+ */
+function setItemRequestedBy(backlogItem, item) {
+    var maxLength = 12;
+    var requestedBy = backlogItem['Requested By'];
+
+    if (requestedBy && requestedBy.length > maxLength) {
+        requestedBy = requestedBy.substring(0, maxLength) + '...';
+    }
+
+    item.getCell(2, 5).setValue(requestedBy);
 }
 
 /**
@@ -268,7 +268,7 @@ function generateCards(items) {
         template.copyTo(card);
 
         setItemId(items[i], card);
-        setItemTheme(items[i], card);
+        setItemRequestedBy(items[i], card);
         setItemName(items[i], card);
         setItemStory(items[i], card);
         setItemHowToDemo(items[i], card);
